@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "litellm-cost-waybar"
 version = "0.2.1"
-description = "LiteLLM spend indicator for Waybar, GNOME and macOS menu bars"
+description = "LiteLLM spend indicator for Waybar"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "BSD-3-Clause"

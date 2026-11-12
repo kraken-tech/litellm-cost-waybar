@@ -1,93 +1,71 @@
-# LiteLLM Cost Panel
+# litellm-cost-waybar
 
-A lightweight LiteLLM spend indicator for a GNOME top panel.
+LiteLLM spend indicator for Waybar.
 
-It queries LiteLLM's `/user/daily/activity` endpoint and displays today's and
-month-to-date spend with their configured percentages:
-
-```text
-󰅐 $7.37 (7%)  󰃭 $379.31 (25%)
-```
+Displays today's and month-to-date spend against configurable budgets. The
+Waybar tooltip includes the totals and percentage used.
 
 ## Install
+
+Clone the repository, then install it from the project directory:
 
 ```bash
 uv tool install .
 ```
 
-For development:
-
-```bash
-uv tool install --editable .
-```
+This installs the `litellm-cost` command.
 
 ## Configure
 
-Configuration is stored outside the repository at
-`~/.config/litellm-cost/config.yaml` with permissions `0600`:
+Set your LiteLLM base URL and budgets. `--key` opens a hidden prompt for your
+API key:
 
 ```bash
 litellm-cost config \
   --url https://litellm.example.com \
   --key \
   --daily-limit 10 \
-  --monthly-limit 200 \
-  --remaining-budget
+  --monthly-limit 200
 ```
 
-With `--key`, the configuration command asks for the API key in a hidden
-prompt. It is sent as `Authorization: Bearer ...` and stored in the config file
-with permissions `0600`. Configured API keys are only sent to HTTPS URLs.
+Configuration is stored in `~/.config/litellm-cost/config.yaml` with file
+permissions set to `0600`. The API key is sent as a Bearer token, and is only
+sent to HTTPS URLs.
 
-`--remaining-budget` is optional and adds a tooltip line showing how much can
-be spent per business day without exceeding the monthly limit. It subtracts
-month-to-date spend and divides the remainder by weekdays (Monday through
-Friday) from today through the end of the month, including today when it is a
-weekday. Use `--no-remaining-budget` to disable it.
-
-## Commands
+To show an optional estimate of the amount available per remaining weekday,
+enable `--remaining-budget`:
 
 ```bash
-litellm-cost --help
-litellm-cost waybar   # Waybar-compatible JSON
-litellm-cost panel    # Plain text for GNOME Executor
+litellm-cost config --remaining-budget
 ```
 
-## GNOME top panel
+Use `--no-remaining-budget` to turn it off. Weekends are excluded from the
+estimate.
 
-GNOME Shell 46 does not provide the layer-shell protocol required by Waybar.
-Install the GNOME Shell **Executor** extension, then configure its right-side
-command using the path to the installed executable:
+## Configure Waybar
 
-```text
-/path/to/litellm-cost panel
+Add the module to your Waybar config and include it in `modules-right` (or
+another module list):
+
+```jsonc
+{
+  "modules-right": ["custom/litellm-cost"],
+  "custom/litellm-cost": {
+    "exec": "litellm-cost waybar",
+    "return-type": "json",
+    "interval": 60,
+    "tooltip": true
+  }
+}
 ```
 
-Set its interval to 60 seconds. Log out and back in after installing a new
-GNOME Shell extension on Wayland.
+The module reports a status class based on the higher of the daily and monthly
+budget percentages: `normal` below 80%, `warning` from 80%, and `critical` at
+100% or more. Request or configuration errors use the `error` class.
 
-GNOME Executor uses the `panel` command and does not read Waybar's JSON
-tooltip field. When `--remaining-budget` is enabled, the per-workday amount is
-therefore included directly in the panel text. The panel command also uses
-Executor's markup support to color normal, warning, critical, and error states.
+Optional colors are provided in [waybar.css](waybar.css). Copy the rules into
+your Waybar stylesheet to style each status class.
 
-### Waybar colors
+## License
 
-The command already emits a status class. Copy the rules from
-[waybar.css](waybar.css) into your Waybar stylesheet to color the indicator
-green, amber, or red according to its spend level.
-
-## macOS (SwiftBar / xbar)
-
-The `swiftbar` command prints SwiftBar/xbar menu bar output. Install the
-tool, then create `~/Library/Application Support/SwiftBar/Plugins/litellm-cost.1m.sh`
-(or the xbar equivalent) and make it executable:
-
-```bash
-#!/bin/bash
-exec "$HOME/.local/bin/litellm-cost" swiftbar
-```
-
-The `1m` in the file name refreshes it every minute. The title is colored by
-spend level and the tooltip lines appear in the dropdown. macOS support has
-not been tested on a real Mac.
+[BSD 3-Clause](LICENSE).
