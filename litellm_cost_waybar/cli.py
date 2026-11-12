@@ -91,8 +91,9 @@ def configure(url, key, daily_limit, monthly_limit, remaining_budget):
 
 def _request_json(config, start, end):
     base_url = config["url"].rstrip("/")
-    if config.get("api_key") and urllib.parse.urlsplit(base_url).scheme != "https":
-        raise RuntimeError("LiteLLM URL must use HTTPS when an API key is configured")
+    parsed_url = urllib.parse.urlsplit(base_url)
+    if parsed_url.scheme != "https" or not parsed_url.netloc:
+        raise RuntimeError("LiteLLM URL must use HTTPS")
     query = urllib.parse.urlencode(
         {
             "start_date": start.isoformat(),
@@ -106,7 +107,8 @@ def _request_json(config, start, end):
         headers["Authorization"] = f"Bearer {config['api_key']}"
     request = urllib.request.Request(url, headers=headers)
     try:
-        with urllib.request.urlopen(request, timeout=8) as response:
+        # Bandit cannot infer the HTTPS scheme check above.
+        with urllib.request.urlopen(request, timeout=8) as response:  # nosec B310
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         raise RuntimeError(f"LiteLLM returned HTTP {exc.code}") from exc
