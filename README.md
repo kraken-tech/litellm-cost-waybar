@@ -30,9 +30,10 @@ litellm-cost config \
   --monthly-limit 200
 ```
 
-Configuration is stored in `~/.config/litellm-cost/config.yaml` with file
-permissions set to `0600`. The API key is sent as a Bearer token, and is only
-sent to HTTPS URLs.
+Configuration, including the API key, is stored as plain text in
+`~/.config/litellm-cost/config.yaml`. File permissions are set to `0600`,
+restricting access to your user. The LiteLLM URL must use HTTPS; the API key is
+sent as a Bearer token.
 
 To show an optional estimate of the amount available per remaining weekday,
 enable `--remaining-budget`:
