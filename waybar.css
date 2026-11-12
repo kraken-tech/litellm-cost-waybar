@@ -1,0 +1,21 @@
+/* Add this file to your Waybar style.css, or import it from there. */
+#custom-litellm-cost {
+  color: #cdd6f4;
+}
+
+#custom-litellm-cost.normal {
+  color: #a6e3a1;
+}
+
+#custom-litellm-cost.warning {
+  color: #f9e2af;
+}
+
+#custom-litellm-cost.critical {
+  color: #f38ba8;
+  font-weight: bold;
+}
+
+#custom-litellm-cost.error {
+  color: #eba0ac;
+}
