@@ -5,6 +5,8 @@ LiteLLM spend indicator for Waybar.
 Displays today's and month-to-date spend against configurable budgets. The
 Waybar tooltip includes the totals and percentage used.
 
+![LiteLLM spend indicator in Waybar](docs/screenshot.png)
+
 ## Install
 
 Clone the repository, then install it from the project directory:
